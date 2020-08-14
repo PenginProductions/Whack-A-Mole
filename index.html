@@ -1,0 +1,156 @@
+<!-- 
+		Name: Robert Giglio	
+		Date: 4/20/2017
+		Class: CSCI2447, Javascript Fundamentals
+		Project 7
+ -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <title>Whack-A-Mole (CSCI2447)</title>
+    <meta charset="utf-8">
+    <!-- CSS styles: This is for me to worry about; not you. -->
+	<link href="./css/jquery-ui.min.css" rel="stylesheet" />
+	<link href="./css/game.css" rel="stylesheet" />
+  <script src="./js/jquery-3.1.1.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<script>
+		//global variables
+		var moleCount = 0;
+		var totalScore = 0;
+		var secondsRemaining = 30;
+		var clockTime;
+		var moleTime;
+		var burrowTime;
+		
+		$(document).ready(function() 
+		{
+			//initialize gamespace
+			$('#gamespace').css("background-color", "#8B3D0E");
+			$('h1').css("color", "#F00");
+			$('#timer').show();
+			//event listeners
+			$('#start_button').click(function()
+			{
+				$(this).prop("disabled", true);
+				launchGame();
+			});
+			$('#gamespace').on("click","img",function()
+			{
+				$(this).remove();
+			  addScore();
+			});
+		});//end ready
+
+		//functions
+		function launchGame()
+		{
+			addMole();
+			decrementTimer();
+		}
+		function addMole()
+		{
+			var xPos = randomX();
+			var yPos = randomY();
+			var spawnTimer = randomSpawnTime();
+			var burrowTimer = randomBurrowTime();
+			if(secondsRemaining > 0)
+			{
+				moleCount++;
+				$('#gamespace').append("<img src='img/mole.png' id='m" +moleCount+ "' style='top:" +yPos+ "px; left:" +xPos+ "px;' />");
+				burrowTime= setTimeout("$('#m"+moleCount+"').remove()", burrowTimer);
+				moleTime = setTimeout("addMole()",spawnTimer);
+			}
+			else
+			{
+				burrowTime = clearTimeout();
+				moleTime = clearTimeout();
+				clearBoard();
+			}
+		}
+		function decrementTimer()
+		{
+			secondsRemaining -= 1;
+			if (secondsRemaining > 0)
+				clockTime = setTimeout("decrementTimer()",1000);
+			else
+				clockTime = clearTimeout();
+			
+			$('#timer').html(secondsRemaining + " seconds left");
+		}
+		function randomX()
+		{
+			var xPosition = Math.floor(Math.random() * 496);
+			return xPosition;
+		}
+		function randomY()
+		{
+			var yPosition = Math.floor(Math.random() * 316);
+			return yPosition;
+		}
+		function randomSpawnTime()
+		{
+			var spawn = Math.random() * 2001;
+			return spawn;
+		}
+		function randomBurrowTime()
+		{
+			var burrow = Math.floor(Math.random() * 4001) +1000;
+			return burrow;
+		}
+		function addScore()
+		{
+			totalScore += 1;
+			$('#score').html(totalScore + " pts");
+		}
+		function clearBoard()
+		{
+			//alert("Time's up!\nYou bopped: " +totalScore+ " moles");
+			$('#results').html("Time's up!\nYou bopped: " +totalScore+ " moles");
+			$('#results').dialog({
+				modal: true,
+				resizeable: false,
+				draggable: false,
+				buttons:{
+					"Thanks for playing!" : function(){
+						$(this).dialog('close');
+					}
+				}
+			});
+			$('#gamespace img').remove();
+			totalScore = 0;
+			$('#score').html(totalScore + " pts");
+			secondsRemaining = 30;
+			$('#timer').html(secondsRemaining + " seconds left");
+			moleCount = 0;
+			$('#start_button').prop("disabled", false);
+		}
+	</script>
+  </head>
+  <body>
+
+	<div id="content">
+
+		<h1>Whack-A-Mole</h1>
+		
+		<p>After clicking "start", you will have 30 seconds to click
+		as many moles as you can. The moles appear randomly so be ready! </p>
+		
+		<div id="controls">
+			<span id="score">0 pts</span>
+			<button type="button" id="start_button">Start!</button>
+		</div>
+		
+		<div id="timer">30 seconds left</div>
+		
+		<div id="gamespace">
+			
+		</div>
+		<div id="results" title="Whack-A-Mole Results">
+		</div>
+		
+	</div>
+  </body>
+/</html>/
